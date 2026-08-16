@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Namespace + labels applied to every resource below. The
+# AgentWorkstation reconciler creates the actual runtime resources
+# (Deployment, Service, Route, PVC, ConfigMap) from spec, so this
+# manifest only ships the CR — the operator owns everything else.
+namespace: agent-office
+
+commonLabels:
+  app.kubernetes.io/name: upstreambeat-wire
+  app.kubernetes.io/managed-by: agent-office
+  agentoffice.ai/agent: upstreambeat-wire
+  backstage.io/kubernetes-id: upstreambeat-wire
+
+resources:
+  - agentworkstation.yaml

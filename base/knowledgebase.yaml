@@ -1,0 +1,40 @@
+# Conditional resource — only included by kustomization.yaml when
+# the template form's "Also create a NEW knowledge base for this
+# agent to curate" toggle was on. For agents that just CONSUME
+# existing KBs (PM agents reading agent-platform-capabilities, etc.),
+# this file is left out of the kustomize tree.
+#
+# The git-mirror block makes the wiki PVC bidirectional with the
+# <name>-wiki GitHub repo the template's publish-wiki step creates:
+# operator's git-sync sidecar pulls remote → PVC every 5 min and
+# pushes new files PVC → remote on the same cadence.
+apiVersion: agentoffice.ai/v1alpha1
+kind: KnowledgeBase
+metadata:
+  name: upstreambeat-wire-wiki
+  namespace: agent-office
+  labels:
+    app.kubernetes.io/managed-by: agent-office
+    agentoffice.ai/agent: upstreambeat-wire
+spec:
+  displayName: "Wire — upstreambeat.ai news desk Wiki"
+  description: |
+    Knowledge base curated by the upstreambeat-wire agent.
+
+    
+  # The KB attaches to the SAME gateway as its agent — mounting a KB adds
+  # a volume to that gateway's pod (a pod restart), so a dedicated agent's
+  # KB must land on its OWN gateway (isolated), NOT on a shared gateway it
+  # doesn't run on. Mirror the AW's effective gatewayRef.
+  gatewayRef:
+    name: upstreambeat-newsroom-gateway
+  storage:
+    size: 5Gi
+  gitMirror:
+    url: https://github.com/enterprisewebservice/upstreambeat-wire-wiki
+    branch: main
+    cadence: "*/5 * * * *"
+    # Standard token chain — operator-managed Secret refreshed by ESO
+    # from Vault. Create the matching ExternalSecret once per cluster
+    # (see cluster/secrets/ in the agent-office gitops repo).
+    credentialsSecretRef: upstreambeat-wire-wiki-git-token
