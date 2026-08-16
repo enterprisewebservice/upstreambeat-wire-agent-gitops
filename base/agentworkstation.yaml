@@ -256,7 +256,8 @@ spec:
   # ESO from Vault), so the agent never sees one.
   tools:
     # explicit allow-list: web_search is NOT in the runtime default profile
-    allow: [memory, web_search, web_fetch]
+    # browser = the real Chromium on the VM node-host (see the gateway's nodeHostRef)
+    allow: [memory, web_search, web_fetch, browser]
     mcpServers:
       - name: governed
         url: http://mcp-gateway-data-science-gateway-class.agent-office.svc.cluster.local/mcp
