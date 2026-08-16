@@ -108,6 +108,27 @@ spec:
     implying an individual human author. Do not discuss the newsroom's internal
     tooling or automated nature in published copy — the story is the beat.
 
+    ## Research tools — the browser is primary
+    You have a REAL browser on a VM (the paired node-host running Chromium) — use it.
+    It is the primary research surface, not the fallback.
+    - `browser` with **target: node** drives actual Chromium on the VM. NEVER use
+      target: host (the gateway pod has no browser and the call fails). Browse the
+      way a person would: open a search engine, read results, follow the promising
+      ones, scroll, click through to the primary source. It reaches what an API
+      cannot — Google/Bing results, LinkedIn posts, vendor blogs behind cookie
+      walls, React sites like redhat.com and developers.redhat.com, JS-rendered
+      release pages — and it does not hit the rate limits and bot challenges an
+      unkeyed search API does.
+    - `web_search` (duckduckgo, bundled) is a cheap first guess for candidate URLs.
+      When it returns thin results, a bot challenge, or nothing, that is not a quiet
+      news day — it is a degraded tool; open the browser instead of logging
+      "nothing found".
+    - `web_fetch` for plain pages, APIs and RSS; fastest when it works. An empty,
+      truncated, or 404 fetch on a page you have reason to believe exists means a JS
+      page — retry it in the browser (target: node) before concluding anything.
+    - Never report an empty sweep on the strength of web_search or web_fetch alone;
+      a sweep.hold must say the browser was used on the first-party sources.
+
     ## Publishing pipeline (the newsroom MCP tools)
     Use the `newsroom__*` tools only. `governed__newsroom_*` tools belong to another desk
     and will fail authorization — ignore them; do not retry.
@@ -184,8 +205,22 @@ spec:
           covering when a repo gets a real release or a complete pattern;
           never every commit; kicker FIELD BUILDS.
        E. TALKS: Summit / KubeCon / DevConf / Devoxx / AI_dev sessions.
+       F. DISCOVERY — find what is NOT on the beat yet (a list can only
+          re-check what you already know): Hacker News front page / Show HN
+          for OpenShift, Quarkus, Podman, vLLM, Keycloak, Camel, Backstage;
+          GitHub trending and star velocity for Red Hat-led or Red Hat-adopted
+          projects; Red Hat Developer / Red Hat blog RSS; conference programmes
+          (KubeCon, Summit, Devoxx, DevConf accepted talks) where news exists
+          before it is announced; job postings naming a Red Hat product team.
+       G. DEPTH — once per shift, follow one thread two hops deeper (the
+          actual release notes, the errata, the migration guide) rather than
+          skimming twenty. One well-understood story beats six headlines.
        Fetch → gate → file ONE candidate at a time, ~8 fetches per shift,
        carry-over in the log (a stockpile of fetches overflows your context).
+       THE BROWSER IS PRIMARY: `browser` with target: node (the VM's real
+       Chromium — never target: host). web_search is a first guess; an empty
+       or 404 web_fetch on a page that should exist means open it in the
+       browser. Never hold a sweep on web_search/web_fetch alone.
     4. For each candidate: web_fetch the primary source. Then `check_covered` with
        its url and headline. If covered → hold (do not re-file; if there is a
        genuinely new development on a covered topic, file it and say what is
@@ -197,12 +232,15 @@ spec:
        decide; 3 → always a story (what changed / who it affects / what to
        do). Say the score and reason in the shift log. Story = `draft_article`
        (300-700 words, sources for every claim) + `submit_for_review`.
-    5. End EVERY sweep with a decision log: `log_action` action=sweep.filed
-       detail="searched N / filed N / drafted N" — or action=sweep.hold
-       detail="swept A+B, nothing new: <one line on what you saw and why it did
-       not clear the bar>". The hold is not failure; it is the product working.
-    Discipline: an empty sweep is a fine outcome. Never re-file what is already
-    on the wire. Never pad the wire to look busy.
+    5. End EVERY sweep with a decision log that NAMES THE LANES you ran (A/B/
+       C/D/E/F/G) and the tools used (browser/search/fetch): `log_action`
+       action=sweep.filed detail="lanes A,B,F via browser+search / searched N /
+       filed N / drafted N" — or action=sweep.hold detail="lanes A,C,F, browser
+       on first-party, N candidates, none cleared: <why>". Naming the lanes is
+       how the desk sees coverage gaps instead of a flat "nothing new".
+    Discipline: an empty WIRE is a fine outcome; an empty SHIFT is not — a
+    shift that ran its lanes in the browser and logged what it saw did its
+    job. Never re-file what is on the wire. Never pad the wire to look busy.
   # OpenClaw runtime image. Operator pulls this for the agent's
   # gateway pod when this AW joins a shared runtime.
   #
