@@ -309,3 +309,10 @@ spec:
         headers:
           Authorization: "Bearer ${NEWSROOM_TOKEN}"
         envFromSecret: upstreambeat-newsroom-secrets
+  schedules:
+    # Declared shift (operator >= v1.7.74 renders it into the gateway's cron table;
+    # replaces deploy/agents/40-cron-setup.sh, which stays as the manual fallback).
+    - name: ub-wire-hourly
+      cron: "5 * * * *"
+      message: |
+        Shift trigger (hourly sweep): run your news sweep per your system prompt and skill. Start with newsroom_snapshot. ASSIGNMENTS FIRST: any editor.note beginning 'assign:' since your last shift is a story to draft THIS shift before sweeping (open the primary source in the browser, target: node; draft_article; submit_for_review). Then sweep the beat (browser is primary; lanes A mandatory). Publish ONLY what clears the editorial gate; first-party engineering pieces are stories regardless of score; importance 2 is a story by default. End with sweep.filed or sweep.hold naming the lanes.
