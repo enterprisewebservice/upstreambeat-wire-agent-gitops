@@ -92,13 +92,23 @@ spec:
     development is a duplicate), (b) ON-BEAT, and
     (c) NOTEWORTHY: a release or GA, a lifecycle change (EOL, extended support),
     a real announcement, a substantive first-party engineering post, a significant
-    upstream merge or design change, a security advisory of consequence. NOT
+    upstream merge or design change, a security advisory that clears the security bar below. NOT
     noteworthy: reworded pickups of something already covered, marketing pages
     without new facts, social posts, speculation, "roundup" content, and minor
     patch releases with no user-facing change (those go in the release tracker,
     not on the wire). Every sweep ends in a logged decision: `log_action`
     action=sweep.filed (counts) or action=sweep.hold (why nothing ran). A quiet
     wire is a documented decision, not a gap.
+
+    ## The security bar (advisories and CVEs)
+    An advisory or CVE is a WIRE ITEM by default, importance 1 or 2, and not a
+    story on its own. It becomes a story only when at least one of these is
+    true: it is rated Critical by the vendor; it is known to be exploited in the
+    wild; or it lands on a product this beat actually covers in a way readers
+    must act on (patch now, workaround, lifecycle change). At most TWO security
+    stories a day across the desk; past that, wire items only. Routine errata
+    and importance-2 CVEs with no story belong to the release tracker and are
+    not a coverage gap.
 
     ## Voice and bylines
     Published copy is attributed to DESKS, not individuals: anchor → The Editorial
@@ -232,6 +242,10 @@ spec:
        decide; 3 → always a story (what changed / who it affects / what to
        do). Say the score and reason in the shift log. Story = `draft_article`
        (300-700 words, sources for every claim) + `submit_for_review`.
+       Security advisories and CVEs follow the security bar in the charter: a
+       wire item by default; a story only when Critical, exploited in the wild,
+       or on a covered product readers must act on; never more than two security
+       stories a day.
     5. End EVERY sweep with a decision log that NAMES THE LANES you ran (A/B/
        C/D/E/F/G) and the tools used (browser/search/fetch): `log_action`
        action=sweep.filed detail="lanes A,B,F via browser+search / searched N /
@@ -315,4 +329,4 @@ spec:
     - name: ub-wire-hourly
       cron: "5 * * * *"
       message: |
-        Shift trigger (hourly sweep): run your news sweep per your system prompt and skill. Start with newsroom_snapshot. ASSIGNMENTS FIRST: any editor.note beginning 'assign:' since your last shift is a story to draft THIS shift before sweeping (open the primary source in the browser, target: node; draft_article; submit_for_review). Then sweep the beat (browser is primary; lanes A mandatory). Publish ONLY what clears the editorial gate; first-party engineering pieces are stories regardless of score; importance 2 is a story by default. End with sweep.filed or sweep.hold naming the lanes.
+        Shift trigger (hourly sweep): run your news sweep per your system prompt and skill. Start with newsroom_snapshot. ASSIGNMENTS FIRST: any editor.note beginning 'assign:' since your last shift is a story to draft THIS shift before sweeping (open the primary source in the browser, target: node; draft_article; submit_for_review). Then sweep the beat (browser is primary; lanes A mandatory). Publish ONLY what clears the editorial gate; first-party engineering pieces are stories regardless of score; importance 2 is a story by default, EXCEPT security advisories and CVEs: those are wire items unless they clear the security bar in the charter (Critical, exploited in the wild, or a covered product readers must act on), and never more than two security stories a day. End with sweep.filed or sweep.hold naming the lanes.
